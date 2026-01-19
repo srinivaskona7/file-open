@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenFile Pro - Universal File Viewer</title>
+    <meta
+      name="description"
+      content="Premium file viewer supporting PDF, YAML, JSON, CSS, HTML, JavaScript, Word documents and more"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Highlight.js for syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+      id="hljs-theme-dark"
+    />
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- Mammoth.js for Word documents -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen hidden">
+      <div class="loader"></div>
+      <p>Loading file...</p>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="logo">
+            <i data-lucide="folder-open"></i>
+            <span class="logo-text"
+              >OpenFile<span class="pro-badge">PRO</span></span
+            >
+          </div>
+        </div>
+
+        <div class="header-center">
+          <div class="search-bar">
+            <i data-lucide="search"></i>
+            <input
+              type="text"
+              id="global-search"
+              placeholder="Search in file... (Ctrl+F)"
+            />
+            <kbd>⌘F</kbd>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button
+            class="icon-btn"
+            id="split-view-btn"
+            title="Split View (Ctrl+\\)"
+          >
+            <i data-lucide="columns"></i>
+          </button>
+          <button class="icon-btn" id="diff-view-btn" title="Compare Files">
+            <i data-lucide="git-compare"></i>
+          </button>
+          <div class="divider"></div>
+          <button
+            class="icon-btn"
+            id="theme-toggle"
+            title="Toggle Theme (Ctrl+Shift+T)"
+          >
+            <i data-lucide="moon" id="theme-icon-dark"></i>
+            <i data-lucide="sun" id="theme-icon-light" class="hidden"></i>
+          </button>
+          <button class="icon-btn" id="settings-btn" title="Settings">
+            <i data-lucide="settings"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tabs-container" id="tabs-container">
+          <div class="tab welcome-tab active" data-tab-id="welcome">
+            <i data-lucide="home"></i>
+            <span>Welcome</span>
+          </div>
+        </div>
+        <button class="new-tab-btn" id="new-tab-btn" title="Open File (Ctrl+O)">
+          <i data-lucide="plus"></i>
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <h3><i data-lucide="files"></i> Open Files</h3>
+            <button class="icon-btn-sm" id="clear-all-btn" title="Close All">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="file-list" id="file-list">
+            <p class="empty-state">No files open</p>
+          </div>
+          <div class="sidebar-footer">
+            <div class="storage-info">
+              <i data-lucide="hard-drive"></i>
+              <span>Local Storage</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Editor Container -->
+        <div class="editor-container" id="editor-container">
+          <!-- Welcome Panel -->
+          <div class="welcome-panel" id="welcome-panel">
+            <div class="drop-zone" id="drop-zone">
+              <div class="drop-zone-content">
+                <div class="drop-icon">
+                  <i data-lucide="upload-cloud"></i>
+                </div>
+                <h2>Drop files here</h2>
+                <p>or click to browse</p>
+                <input
+                  type="file"
+                  id="file-input"
+                  multiple
+                  hidden
+                  accept="*/*"
+                />
+                <button class="primary-btn" id="browse-btn">
+                  <i data-lucide="folder-open"></i>
+                  Browse Files
+                </button>
+              </div>
+              <div class="supported-formats">
+                <span class="format-badge">PDF</span>
+                <span class="format-badge">YAML</span>
+                <span class="format-badge">JSON</span>
+                <span class="format-badge">HTML</span>
+                <span class="format-badge">CSS</span>
+                <span class="format-badge">JS</span>
+                <span class="format-badge">MD</span>
+                <span class="format-badge">DOCX</span>
+                <span class="format-badge">TXT</span>
+                <span class="format-badge">+more</span>
+              </div>
+            </div>
+
+            <div class="shortcuts-panel">
+              <h3><i data-lucide="keyboard"></i> Keyboard Shortcuts</h3>
+              <div class="shortcuts-grid">
+                <div class="shortcut">
+                  <kbd>Ctrl</kbd><span>+</span><kbd>O</kbd>
+                  <span>Open File</span>
+                </div>
+                <div class="shortcut">
+                  <kbd>Ctrl</kbd><span>+</span><kbd>F</kbd>
+                  <span>Find</span>
+                </div>
+                <div class="shortcut">
+                  <kbd>Ctrl</kbd><span>+</span><kbd>H</kbd>
+                  <span>Replace</span>
+                </div>
+                <div class="shortcut">
+                  <kbd>Ctrl</kbd><span>+</span><kbd>W</kbd>
+                  <span>Close Tab</span>
+                </div>
+                <div class="shortcut">
+                  <kbd>Ctrl</kbd><span>+</span><kbd>\\</kbd>
+                  <span>Split View</span>
+                </div>
+                <div class="shortcut">
+                  <kbd>Ctrl</kbd><span>+</span><kbd>S</kbd>
+                  <span>Save/Download</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Viewer Panels (dynamically created) -->
+          <div class="viewer-panels" id="viewer-panels"></div>
+        </div>
+
+        <!-- Split View Container -->
+        <div class="split-view-container hidden" id="split-view-container">
+          <div class="split-pane left-pane" id="left-pane"></div>
+          <div class="split-divider" id="split-divider"></div>
+          <div class="split-pane right-pane" id="right-pane"></div>
+        </div>
+      </main>
+
+      <!-- Toolbar -->
+      <div class="toolbar" id="toolbar">
+        <div class="toolbar-group">
+          <button class="tool-btn" id="copy-btn" title="Copy (Ctrl+C)">
+            <i data-lucide="copy"></i>
+            <span>Copy</span>
+          </button>
+          <button
+            class="tool-btn"
+            id="copy-with-lines-btn"
+            title="Copy with Line Numbers"
+          >
+            <i data-lucide="list-ordered"></i>
+            <span>Copy + Lines</span>
+          </button>
+          <button
+            class="tool-btn"
+            id="select-all-btn"
+            title="Select All (Ctrl+A)"
+          >
+            <i data-lucide="square-check"></i>
+            <span>Select All</span>
+          </button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button
+            class="tool-btn"
+            id="find-replace-btn"
+            title="Find & Replace (Ctrl+H)"
+          >
+            <i data-lucide="replace"></i>
+            <span>Find & Replace</span>
+          </button>
+          <button
+            class="tool-btn"
+            id="go-to-line-btn"
+            title="Go to Line (Ctrl+G)"
+          >
+            <i data-lucide="arrow-down-to-line"></i>
+            <span>Go to Line</span>
+          </button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="tool-btn" id="word-wrap-btn" title="Toggle Word Wrap">
+            <i data-lucide="wrap-text"></i>
+            <span>Wrap</span>
+          </button>
+          <button
+            class="tool-btn"
+            id="line-numbers-btn"
+            title="Toggle Line Numbers"
+          >
+            <i data-lucide="hash"></i>
+            <span>Lines</span>
+          </button>
+          <button class="tool-btn" id="minimap-btn" title="Toggle Minimap">
+            <i data-lucide="map"></i>
+            <span>Minimap</span>
+          </button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="tool-btn" id="download-btn" title="Download (Ctrl+S)">
+            <i data-lucide="download"></i>
+            <span>Download</span>
+          </button>
+          <button class="tool-btn" id="print-btn" title="Print (Ctrl+P)">
+            <i data-lucide="printer"></i>
+            <span>Print</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <footer class="status-bar">
+        <div class="status-left">
+          <span class="status-item" id="file-type-status">
+            <i data-lucide="file"></i>
+            <span>No file</span>
+          </span>
+          <span class="status-item" id="encoding-status">
+            <i data-lucide="binary"></i>
+            <span>UTF-8</span>
+          </span>
+        </div>
+        <div class="status-center">
+          <span class="status-item" id="cursor-status">
+            <span>Ln 1, Col 1</span>
+          </span>
+        </div>
+        <div class="status-right">
+          <span class="status-item" id="file-size-status">
+            <i data-lucide="hard-drive"></i>
+            <span>0 B</span>
+          </span>
+          <span class="status-item" id="lines-status">
+            <i data-lucide="list"></i>
+            <span>0 lines</span>
+          </span>
+          <span class="status-item zoom-controls">
+            <button class="zoom-btn" id="zoom-out">
+              <i data-lucide="minus"></i>
+            </button>
+            <span id="zoom-level">100%</span>
+            <button class="zoom-btn" id="zoom-in">
+              <i data-lucide="plus"></i>
+            </button>
+          </span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Find & Replace Modal -->
+    <div class="modal hidden" id="find-replace-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i data-lucide="search"></i> Find & Replace</h3>
+          <button class="modal-close" id="close-find-replace">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <label for="find-input">Find</label>
+            <div class="input-with-options">
+              <input type="text" id="find-input" placeholder="Search text..." />
+              <div class="input-options">
+                <button
+                  class="option-btn"
+                  id="case-sensitive-btn"
+                  title="Match Case"
+                >
+                  <i data-lucide="case-sensitive"></i>
+                </button>
+                <button class="option-btn" id="regex-btn" title="Use Regex">
+                  <i data-lucide="regex"></i>
+                </button>
+                <button
+                  class="option-btn"
+                  id="whole-word-btn"
+                  title="Whole Word"
+                >
+                  <i data-lucide="whole-word"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="replace-input">Replace</label>
+            <input
+              type="text"
+              id="replace-input"
+              placeholder="Replace with..."
+            />
+          </div>
+          <div class="find-results" id="find-results">
+            <span>0 results</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="secondary-btn" id="find-prev-btn">
+            <i data-lucide="chevron-up"></i> Previous
+          </button>
+          <button class="secondary-btn" id="find-next-btn">
+            <i data-lucide="chevron-down"></i> Next
+          </button>
+          <button class="primary-btn" id="replace-btn">Replace</button>
+          <button class="primary-btn" id="replace-all-btn">Replace All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Go to Line Modal -->
+    <div class="modal hidden" id="goto-line-modal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3><i data-lucide="arrow-down-to-line"></i> Go to Line</h3>
+          <button class="modal-close" id="close-goto-line">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <label for="goto-line-input">Line Number</label>
+            <input
+              type="number"
+              id="goto-line-input"
+              placeholder="Enter line number..."
+              min="1"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="secondary-btn" id="cancel-goto">Cancel</button>
+          <button class="primary-btn" id="goto-btn">Go</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal hidden" id="settings-modal">
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3><i data-lucide="settings"></i> Settings</h3>
+          <button class="modal-close" id="close-settings">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-section">
+            <h4>Appearance</h4>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Theme</span>
+                <span class="setting-desc"
+                  >Choose between dark and light mode</span
+                >
+              </div>
+              <select id="theme-select">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="system">System</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Font Size</span>
+                <span class="setting-desc">Editor font size in pixels</span>
+              </div>
+              <input
+                type="number"
+                id="font-size-input"
+                value="14"
+                min="10"
+                max="32"
+              />
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Font Family</span>
+                <span class="setting-desc">Code editor font</span>
+              </div>
+              <select id="font-family-select">
+                <option value="'Fira Code', monospace">Fira Code</option>
+                <option value="'JetBrains Mono', monospace">
+                  JetBrains Mono
+                </option>
+                <option value="'Source Code Pro', monospace">
+                  Source Code Pro
+                </option>
+                <option value="monospace">System Monospace</option>
+              </select>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h4>Editor</h4>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Line Numbers</span>
+                <span class="setting-desc"
+                  >Show line numbers in the gutter</span
+                >
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="line-numbers-toggle" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Word Wrap</span>
+                <span class="setting-desc">Wrap long lines</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="word-wrap-toggle" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Minimap</span>
+                <span class="setting-desc">Show code minimap on the right</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="minimap-toggle" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">Tab Size</span>
+                <span class="setting-desc">Number of spaces per tab</span>
+              </div>
+              <select id="tab-size-select">
+                <option value="2">2 spaces</option>
+                <option value="4" selected>4 spaces</option>
+                <option value="8">8 spaces</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="secondary-btn" id="reset-settings">
+            Reset to Defaults
+          </button>
+          <button class="primary-btn" id="save-settings">Save Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diff View Modal -->
+    <div class="modal hidden" id="diff-modal">
+      <div class="modal-content modal-xl">
+        <div class="modal-header">
+          <h3><i data-lucide="git-compare"></i> Compare Files</h3>
+          <button class="modal-close" id="close-diff">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body diff-body">
+          <div class="diff-file-selectors">
+            <div class="diff-selector">
+              <label>Original File</label>
+              <select id="diff-file-1">
+                <option value="">Select a file...</option>
+              </select>
+            </div>
+            <div class="diff-selector">
+              <label>Modified File</label>
+              <select id="diff-file-2">
+                <option value="">Select a file...</option>
+              </select>
+            </div>
+          </div>
+          <div class="diff-view" id="diff-view">
+            <div class="diff-placeholder">
+              <i data-lucide="git-compare"></i>
+              <p>Select two files to compare</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="primary-btn" id="run-diff-btn">Compare</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Context Menu -->
+    <div class="context-menu hidden" id="context-menu">
+      <button class="context-item" data-action="copy">
+        <i data-lucide="copy"></i> Copy
+      </button>
+      <button class="context-item" data-action="copy-lines">
+        <i data-lucide="list-ordered"></i> Copy with Line Numbers
+      </button>
+      <div class="context-divider"></div>
+      <button class="context-item" data-action="select-all">
+        <i data-lucide="square-check"></i> Select All
+      </button>
+      <button class="context-item" data-action="select-line">
+        <i data-lucide="minus"></i> Select Line
+      </button>
+      <div class="context-divider"></div>
+      <button class="context-item" data-action="find">
+        <i data-lucide="search"></i> Find
+      </button>
+      <button class="context-item" data-action="goto">
+        <i data-lucide="arrow-down-to-line"></i> Go to Line
+      </button>
+    </div>
+
+    <!-- Highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
+
+    <!-- Main Application JS -->
+    <script src="app.js"></script>
+  </body>
+</html>

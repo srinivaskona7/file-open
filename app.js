@@ -699,18 +699,23 @@ const Viewer = {
   },
 
   renderText(panel, fileData) {
-    const lines = fileData.content.split("\n");
+    // Trim leading and trailing empty lines while preserving content
+    const trimmedContent = fileData.content
+      .replace(/^\s*\n+/, '')  // Remove leading empty lines
+      .replace(/\n+\s*$/, ''); // Remove trailing empty lines
+    
+    const lines = trimmedContent.split("\n");
     const lineNumbers = lines.map((_, i) => `<span>${i + 1}</span>`).join("");
 
     // Apply syntax highlighting
     let highlightedContent;
     try {
-      const result = hljs.highlight(fileData.content, {
+      const result = hljs.highlight(trimmedContent, {
         language: fileData.language,
       });
       highlightedContent = result.value;
     } catch {
-      highlightedContent = Utils.escapeHtml(fileData.content);
+      highlightedContent = Utils.escapeHtml(trimmedContent);
     }
 
     panel.innerHTML = `
@@ -725,7 +730,7 @@ const Viewer = {
                   AppState.settings.minimap
                     ? `
                 <div class="minimap" data-file-id="${fileData.id}">
-                    <div class="minimap-content">${Utils.escapeHtml(fileData.content.substring(0, 5000))}</div>
+                    <div class="minimap-content">${Utils.escapeHtml(trimmedContent.substring(0, 5000))}</div>
                     <div class="minimap-viewport"></div>
                 </div>
                 `

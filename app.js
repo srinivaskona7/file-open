@@ -699,11 +699,9 @@ const Viewer = {
   },
 
   renderText(panel, fileData) {
-    // Trim leading and trailing empty lines while preserving content
-    const trimmedContent = fileData.content
-      .replace(/^\s*\n+/, '')  // Remove leading empty lines
-      .replace(/\n+\s*$/, ''); // Remove trailing empty lines
-    
+    // Trim leading and trailing whitespace from content
+    const trimmedContent = fileData.content.trim();
+
     const lines = trimmedContent.split("\n");
     const lineNumbers = lines.map((_, i) => `<span>${i + 1}</span>`).join("");
 
@@ -718,26 +716,13 @@ const Viewer = {
       highlightedContent = Utils.escapeHtml(trimmedContent);
     }
 
-    panel.innerHTML = `
-            <div class="code-viewer">
-                <div class="line-numbers" data-file-id="${fileData.id}">
-                    ${lineNumbers}
-                </div>
-                <div class="code-content" data-file-id="${fileData.id}" contenteditable="false">
-                    <pre><code class="hljs language-${fileData.language}">${highlightedContent}</code></pre>
-                </div>
-                ${
-                  AppState.settings.minimap
-                    ? `
-                <div class="minimap" data-file-id="${fileData.id}">
-                    <div class="minimap-content">${Utils.escapeHtml(trimmedContent.substring(0, 5000))}</div>
-                    <div class="minimap-viewport"></div>
-                </div>
-                `
-                    : ""
-                }
-            </div>
-        `;
+    // Build minimap HTML if enabled
+    const minimapHtml = AppState.settings.minimap
+      ? `<div class="minimap" data-file-id="${fileData.id}"><div class="minimap-content">${Utils.escapeHtml(trimmedContent.substring(0, 5000))}</div><div class="minimap-viewport"></div></div>`
+      : "";
+
+    // Create panel HTML without extra whitespace
+    panel.innerHTML = `<div class="code-viewer"><div class="line-numbers" data-file-id="${fileData.id}">${lineNumbers}</div><div class="code-content" data-file-id="${fileData.id}" contenteditable="false"><pre><code class="hljs language-${fileData.language}">${highlightedContent}</code></pre></div>${minimapHtml}</div>`;
 
     // Setup scroll sync for minimap
     this.setupMinimapSync(panel, fileData.id);

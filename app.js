@@ -73,6 +73,7 @@ const DOM = {
   lineNumbersBtn: document.getElementById("line-numbers-btn"),
   minimapBtn: document.getElementById("minimap-btn"),
   downloadBtn: document.getElementById("download-btn"),
+  exportPdfBtn: document.getElementById("export-pdf-btn"),
   printBtn: document.getElementById("print-btn"),
 
   // Status bar
@@ -1203,6 +1204,127 @@ const Download = {
 };
 
 // =====================================================
+// Export to PDF
+// =====================================================
+const ExportPDF = {
+  export() {
+    const fileData = AppState.files.get(AppState.activeTabId);
+    if (!fileData) {
+      Toast.warning("No file to export");
+      return;
+    }
+
+    Toast.info("Generating PDF...");
+
+    // Get the active viewer panel content
+    const activePanel = document.querySelector(".viewer-panel.active");
+    if (!activePanel) {
+      Toast.error("No content to export");
+      return;
+    }
+
+    // Clone the content to avoid modifying the original
+    const content = activePanel.cloneNode(true);
+    
+    // Style the content for PDF
+    content.style.cssText = `
+      background: white !important;
+      color: black !important;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 10pt;
+      line-height: 1.4;
+    `;
+
+    // Style code content
+    const codeContent = content.querySelector(".code-content");
+    if (codeContent) {
+      codeContent.style.cssText = `
+        background: white !important;
+        color: black !important;
+        overflow: visible;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      `;
+    }
+
+    // Style line numbers
+    const lineNumbers = content.querySelector(".line-numbers");
+    if (lineNumbers) {
+      lineNumbers.style.cssText = `
+        background: #f5f5f5 !important;
+        color: #666 !important;
+        padding-right: 10px;
+        border-right: 1px solid #ccc;
+        margin-right: 10px;
+      `;
+    }
+
+    // Hide minimap in PDF
+    const minimap = content.querySelector(".minimap");
+    if (minimap) {
+      minimap.style.display = "none";
+    }
+
+    // Style all code and pre elements
+    content.querySelectorAll("pre, code").forEach(el => {
+      el.style.cssText = `
+        background: white !important;
+        color: black !important;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      `;
+    });
+
+    // Generate filename
+    const pdfFilename = fileData.name.replace(/\.[^/.]+$/, "") + ".pdf";
+
+    // Configure html2pdf options
+    const options = {
+      margin: [10, 10, 10, 10],
+      filename: pdfFilename,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        logging: false
+      },
+      jsPDF: { 
+        unit: "mm", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+    };
+
+    // Create temporary container
+    const container = document.createElement("div");
+    container.style.position = "absolute";
+    container.style.left = "-9999px";
+    container.style.top = "-9999px";
+    container.style.width = "210mm"; // A4 width
+    container.appendChild(content);
+    document.body.appendChild(container);
+
+    // Generate PDF
+    html2pdf()
+      .set(options)
+      .from(content)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+        Toast.success(`Exported: ${pdfFilename}`);
+      })
+      .catch((error) => {
+        document.body.removeChild(container);
+        console.error("PDF export error:", error);
+        Toast.error("Failed to export PDF");
+      });
+  }
+};
+
+// =====================================================
 // Diff View
 // =====================================================
 const DiffView = {
@@ -1649,6 +1771,7 @@ function setupEventListeners() {
     Modal.open("goto-line-modal"),
   );
   DOM.downloadBtn.addEventListener("click", () => Download.current());
+  DOM.exportPdfBtn.addEventListener("click", () => ExportPDF.export());
   DOM.printBtn.addEventListener("click", () => window.print());
 
   // Toggle buttons

@@ -33,6 +33,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- html2pdf.js for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -274,6 +277,10 @@
           <button class="tool-btn" id="download-btn" title="Download (Ctrl+S)">
             <i data-lucide="download"></i>
             <span>Download</span>
+          </button>
+          <button class="tool-btn" id="export-pdf-btn" title="Export to PDF">
+            <i data-lucide="file-down"></i>
+            <span>Export PDF</span>
           </button>
           <button class="tool-btn" id="print-btn" title="Print (Ctrl+P)">
             <i data-lucide="printer"></i>

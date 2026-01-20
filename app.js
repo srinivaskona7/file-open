@@ -1601,11 +1601,16 @@ const DragDrop = {
 // Event Listeners Setup
 // =====================================================
 function setupEventListeners() {
-  // Browse button
-  DOM.browseBtn.addEventListener("click", () => DOM.fileInput.click());
+  // Browse button - stop propagation to prevent dropZone handler from also firing
+  DOM.browseBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    DOM.fileInput.click();
+  });
 
-  // Drop zone click
+  // Drop zone click - only trigger if not clicking on a button
   DOM.dropZone.addEventListener("click", (e) => {
+    // Don't trigger if clicking on the browse button (it handles itself)
+    if (e.target.closest(".primary-btn")) return;
     if (e.target === DOM.dropZone || e.target.closest(".drop-zone-content")) {
       DOM.fileInput.click();
     }

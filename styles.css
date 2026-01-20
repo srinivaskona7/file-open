@@ -1781,23 +1781,174 @@ body {
    Print Styles
    ===================================================== */
 @media print {
+  /* Reset backgrounds for print */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Hide UI elements */
   .header,
   .tab-bar,
   .sidebar,
   .toolbar,
-  .status-bar {
+  .status-bar,
+  .minimap,
+  .welcome-panel,
+  .modal,
+  .toast-container,
+  .context-menu,
+  .loading-screen {
     display: none !important;
+  }
+
+  /* Show app container properly */
+  .app-container {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Main content adjustments */
+  .main-content {
+    display: block !important;
+    overflow: visible !important;
   }
 
   .editor-container {
     display: block !important;
+    overflow: visible !important;
   }
 
-  .code-viewer {
+  .viewer-panels {
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .viewer-panel {
+    display: block !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+  }
+
+  .viewer-panel.active {
     display: block !important;
   }
 
+  /* Code viewer for print */
+  .code-viewer {
+    display: block !important;
+    overflow: visible !important;
+    font-size: 10pt !important;
+  }
+
+  /* Line numbers for print */
+  .line-numbers {
+    display: block !important;
+    float: left !important;
+    width: 40px !important;
+    padding-right: 10px !important;
+    border-right: 1px solid #ccc !important;
+    margin-right: 10px !important;
+    text-align: right !important;
+    color: #999 !important;
+  }
+
+  .line-numbers span {
+    display: block !important;
+  }
+
+  /* Code content for print */
   .code-content {
-    white-space: pre-wrap;
+    display: block !important;
+    overflow: visible !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    font-family: "Courier New", Courier, monospace !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+  }
+
+  .code-content pre {
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
+
+  .code-content code {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Syntax highlighting colors for print (grayscale-friendly) */
+  .hljs-keyword {
+    color: #333 !important;
+    font-weight: bold !important;
+  }
+  .hljs-string {
+    color: #444 !important;
+  }
+  .hljs-comment {
+    color: #888 !important;
+    font-style: italic !important;
+  }
+  .hljs-number {
+    color: #333 !important;
+  }
+  .hljs-function {
+    color: #333 !important;
+  }
+
+  /* PDF viewer for print */
+  .pdf-viewer {
+    display: block !important;
+  }
+
+  .pdf-toolbar {
+    display: none !important;
+  }
+
+  .pdf-container {
+    display: block !important;
+  }
+
+  .pdf-page {
+    max-width: 100% !important;
+    page-break-after: always;
+  }
+
+  /* Image viewer for print */
+  .image-viewer {
+    display: block !important;
+    text-align: center !important;
+  }
+
+  .image-viewer img {
+    max-width: 100% !important;
+    max-height: 90vh !important;
+  }
+
+  /* Word document for print */
+  .docx-viewer {
+    display: block !important;
+  }
+
+  .docx-content {
+    max-width: 100% !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1cm;
+    size: auto;
+  }
+
+  /* Prevent page breaks inside code blocks */
+  pre,
+  code {
+    page-break-inside: avoid;
   }
 }

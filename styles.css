@@ -1946,10 +1946,32 @@ body {
     max-width: 100% !important;
   }
 
-  /* Page setup */
+  /* Page setup - remove browser headers/footers */
   @page {
-    margin: 1cm;
-    size: auto;
+    margin: 10mm;
+    size: A4;
+  }
+
+  /* Remove header/footer from print */
+  @page :first {
+    margin-top: 10mm;
+  }
+
+  /* Hide title bar in print */
+  title {
+    display: none !important;
+  }
+
+  /* Force no URL/date printing by using zero margins for header/footer area would require browser settings, 
+     but we can at least set the page to be clean */
+  html {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* Prevent page breaks inside code blocks */

@@ -1226,37 +1226,54 @@ const ExportPDF = {
     // Clone the content to avoid modifying the original
     const content = activePanel.cloneNode(true);
     
-    // Style the content for PDF
-    content.style.cssText = `
-      background: white !important;
-      color: black !important;
-      padding: 20px;
-      font-family: 'Courier New', monospace;
-      font-size: 10pt;
-      line-height: 1.4;
-    `;
+    // Style the code-viewer as table for proper layout
+    const codeViewer = content.querySelector(".code-viewer");
+    if (codeViewer) {
+      codeViewer.style.cssText = `
+        display: table !important;
+        width: 100% !important;
+        background: white !important;
+        font-family: 'Courier New', monospace;
+        font-size: 10pt;
+        line-height: 1.5;
+        table-layout: fixed;
+      `;
+    }
 
-    // Style code content
+    // Style line numbers as table-cell
+    const lineNumbers = content.querySelector(".line-numbers");
+    if (lineNumbers) {
+      lineNumbers.style.cssText = `
+        display: table-cell !important;
+        width: 50px !important;
+        min-width: 50px !important;
+        padding-right: 15px !important;
+        border-right: 1px solid #ddd !important;
+        text-align: right !important;
+        color: #888 !important;
+        vertical-align: top !important;
+        background: #f8f8f8 !important;
+      `;
+      // Style each line number span
+      lineNumbers.querySelectorAll("span").forEach(span => {
+        span.style.display = "block";
+        span.style.lineHeight = "1.5";
+      });
+    }
+
+    // Style code content as table-cell
     const codeContent = content.querySelector(".code-content");
     if (codeContent) {
       codeContent.style.cssText = `
+        display: table-cell !important;
+        padding-left: 15px !important;
         background: white !important;
         color: black !important;
         overflow: visible;
         white-space: pre-wrap;
         word-wrap: break-word;
-      `;
-    }
-
-    // Style line numbers
-    const lineNumbers = content.querySelector(".line-numbers");
-    if (lineNumbers) {
-      lineNumbers.style.cssText = `
-        background: #f5f5f5 !important;
-        color: #666 !important;
-        padding-right: 10px;
-        border-right: 1px solid #ccc;
-        margin-right: 10px;
+        vertical-align: top !important;
+        line-height: 1.5 !important;
       `;
     }
 
@@ -1273,6 +1290,8 @@ const ExportPDF = {
         color: black !important;
         white-space: pre-wrap;
         word-wrap: break-word;
+        margin: 0;
+        padding: 0;
       `;
     });
 

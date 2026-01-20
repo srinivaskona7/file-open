@@ -1837,38 +1837,44 @@ body {
     display: block !important;
   }
 
-  /* Code viewer for print */
+  /* Code viewer for print - use table layout */
   .code-viewer {
-    display: block !important;
+    display: table !important;
+    width: 100% !important;
     overflow: visible !important;
     font-size: 10pt !important;
+    table-layout: fixed !important;
   }
 
-  /* Line numbers for print */
+  /* Line numbers for print - table cell */
   .line-numbers {
-    display: block !important;
-    float: left !important;
-    width: 40px !important;
-    padding-right: 10px !important;
-    border-right: 1px solid #ccc !important;
-    margin-right: 10px !important;
+    display: table-cell !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    padding-right: 15px !important;
+    border-right: 1px solid #ddd !important;
     text-align: right !important;
-    color: #999 !important;
+    color: #888 !important;
+    vertical-align: top !important;
+    background: #f8f8f8 !important;
   }
 
   .line-numbers span {
     display: block !important;
+    line-height: 1.5 !important;
   }
 
-  /* Code content for print */
+  /* Code content for print - table cell */
   .code-content {
-    display: block !important;
+    display: table-cell !important;
+    padding-left: 15px !important;
     overflow: visible !important;
     white-space: pre-wrap !important;
     word-wrap: break-word !important;
     font-family: "Courier New", Courier, monospace !important;
     font-size: 10pt !important;
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
+    vertical-align: top !important;
   }
 
   .code-content pre {
